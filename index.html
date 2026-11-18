@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — HTML e CSS</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 24px;
+    font-family: Arial, sans-serif; background: #eef2ff; color: #172033;
+    display: flex; align-items: center; justify-content: center;
+  }
+  main { width: min(100%, 620px); text-align: center; }
+  h1 { margin: 0 0 8px; font-size: 1.8rem; }
+  .sub { color: #596579; margin: 0 0 24px; }
+  .progress { height: 8px; background: #d8def0; border-radius: 20px; overflow: hidden; margin-bottom: 10px; }
+  #bar { height: 100%; width: 0; background: #536dfe; transition: width .2s; }
+  #count { color: #596579; font-size: .95rem; margin-bottom: 14px; }
+  #card {
+    min-height: 260px; width: 100%; border: 0; border-radius: 22px;
+    padding: 30px; background: white; color: #172033;
+    box-shadow: 0 12px 35px #26345b20; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; gap: 18px;
+  }
+  #side { color: #536dfe; font-size: .85rem; font-weight: bold; text-transform: uppercase; letter-spacing: .08em; }
+  #content { font-size: clamp(1.25rem, 4vw, 1.8rem); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+  .hint { color: #69758a; font-size: .9rem; margin: 14px 0 22px; }
+  .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  button.control {
+    border: 0; border-radius: 12px; padding: 13px 19px; font-size: 1rem;
+    font-weight: 600; cursor: pointer; background: #536dfe; color: white;
+  }
+  button.secondary { background: #dce3ff; color: #26356e; }
+  button:focus-visible { outline: 3px solid #172033; outline-offset: 3px; }
+  footer { margin-top: 24px; color: #758096; font-size: .8rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Flashcards: HTML e CSS</h1>
+  <p class="sub">Programação básica • Estude no seu ritmo</p>
+  
+  <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+  
+  <div id="count" aria-live="polite"></div>
+
+  <button id="card" type="button" aria-expanded="false" aria-label="Cartão de estudo. Clique para virar.">
+    <span id="side">PERGUNTA</span>
+    <span id="content"></span>
+  </button>
+  <p class="hint">Toque no cartão ou pressione Espaço/Enter para revelar a resposta.</p>
+
+  <div class="controls">
+    <button class="control secondary" id="prev" aria-label="Cartão anterior">← Anterior</button>
+    <button class="control" id="flip" aria-label="Virar cartão atual">Virar cartão</button>
+    <button class="control secondary" id="next" aria-label="Próximo cartão">Próximo →</button>
+  </div>
+  
+  <footer>Arquivo criado para abrir no navegador ou compartilhar.</footer>
+</main>
+
+<script>
+const cards = [
+  ["O que é HTML?", "Linguagem de marcação usada para estruturar páginas web."],
+  ["O que é CSS?", "Linguagem usada para estilizar páginas web."],
+  ["O que significa HTML?", "HyperText Markup Language."],
+  ["O que significa CSS?", "Cascading Style Sheets."],
+  ["Para que serve o VS Code?", "Editar códigos e desenvolver projetos."],
+  ["Qual propriedade CSS muda a cor do texto?", "color"],
+  ["Qual propriedade muda a cor de fundo?", "background-color"],
+  ["Como deixar um texto centralizado?", "text-align: center;"],
+  ["Qual propriedade altera o tamanho da fonte?", "font-size"],
+  ["Qual propriedade altera o espaço interno?", "padding"],
+  ["Qual propriedade altera o espaço externo?", "margin"],
+  ["Qual extensão identifica um arquivo HTML?", ".html"],
+  ["Qual extensão identifica um arquivo CSS?", ".css"]
+];
+
+let index = 0, showingAnswer = false;
+const cardEl = document.getElementById("card");
+const content = document.getElementById("content");
+const side = document.getElementById("side");
+const count = document.getElementById("count");
+const bar = document.getElementById("bar");
+
+function render() {
+  side.textContent = showingAnswer ? "RESPOSTA" : "PERGUNTA";
+  content.textContent = cards[index][showingAnswer ? 1 : 0];
+  count.textContent = `Cartão ${index + 1} de ${cards.length}`;
+  bar.style.width = `${((index + 1) / cards.length) * 100}%`;
+  
+  cardEl.setAttribute("aria-expanded", showingAnswer ? "true" : "false");
+  cardEl.setAttribute("aria-label", `${showingAnswer ? "Resposta" : "Pergunta"}: ${content.textContent}. Cartão ${index + 1} de ${cards.length}. Clique para virar.`);
+}
+
+function flip() { 
+  showingAnswer = !showingAnswer; 
+  render(); 
+}
+
+cardEl.addEventListener("click", flip);
+document.getElementById("flip").addEventListener("click", flip);
+
+document.getElementById("prev").addEventListener("click", () => {
+  index = (index - 1 + cards.length) % cards.length; 
+  showingAnswer = false; 
+  render();
+});
+
+document.getElementById("next").addEventListener("click", () => {
+  index = (index + 1) % cards.length; 
+  showingAnswer = false; 
+  render();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") document.getElementById("next").click();
+  if (e.key === "ArrowLeft") document.getElementById("prev").click();
+  if (e.key === " " || e.key === "Enter") { 
+    if (e.target.tagName !== "BUTTON" || e.target === cardEl) {
+      e.preventDefault(); 
+      flip(); 
+    }
+  }
+});
+
+render();
+</script>
+</body>
+</html>
